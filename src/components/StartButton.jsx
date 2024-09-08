@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 
 const StartButton = ({ onClick }) => (
   <>
-    <Button variant="primary" className="start-button" onClick={onClick} size="lg">
+    <Button variant="dark" className="start-button" onClick={onClick} size="lg">
       Start
     </Button>
     <h4 className="tour-text">Take a tour of my room</h4>

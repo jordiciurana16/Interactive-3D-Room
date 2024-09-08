@@ -1,37 +1,105 @@
-/* src/App.css */
 .canvas-container {
-    position: relative;
-    width: 100%;
-    height: 100vh;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.start-button, .tour-text {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+  transition: transform 0.3s ease, opacity 1s ease; /* Afegir transició d'opacitat */
+}
+
+/* Animació d'escalat suau en loop */
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, 0) scale(1);
   }
-  
-  .start-button, .tour-text {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+  50% {
+    transform: translate(-50%, 0) scale(1.05);
   }
-  
-  .start-button {
-    bottom: 25%;
-    font-size: 24px;
-    padding: 10px 20px;
-    transition: transform 0.3s ease; /* Animació suau en hover */
-  }
-  
-  .start-button:hover {
-    transform: translateX(-50%) scale(1.1); /* Creix una mica en fer hover */
-  }
-  
-  .tour-text {
-    bottom: 15%;
-  }
-  
-  .info-text {
-    position: absolute;
-    top: 10%;
-    left: 5%; /* Redueix el marge a l'esquerra */
-    width: 30%; /* Limita l'amplada al 30% de la pantalla */
-    text-align: justify;
-    font-size: 14px; /* Fa el text més petit */
-  }
-  
+}
+
+.start-button {
+  bottom: 25%;
+  font-size: 24px;
+  padding: 10px 20px;
+  animation: pulse 2s infinite; /* Aplica l'animació de pulsació */
+  opacity: 1; /* Fes el botó visible per defecte */
+}
+
+.start-button:hover {
+  animation: none; /* Atura l'animació de pulsació */
+  transform: translate(-50%, 0) scale(1.1); /* Animació smooth amb escala en hover */
+}
+
+.loading-bar {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  transition: opacity 1s ease; /* Transició suau */
+}
+
+.percentage {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.info-text {
+  position: absolute;
+  top: 10%;
+  left: 5%;
+  width: 30%;
+  text-align: justify;
+  font-size: 14px;
+  transition: opacity 1s ease; /* Transició suau */
+}
+
+/* Posició absoluta per al text */
+.tour-text {
+  bottom: 15%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  position: absolute;
+  opacity: 1; /* Inici visible */
+  transition: opacity 0.5s ease;
+}
+
+.introduction {
+  position: absolute;
+  top: 20%;
+  left: 10%;
+  width: 80%;
+  text-align: justify;
+  font-size: 16px;
+  transition: opacity 1s ease;
+}
+
+/* src/App.css o un altre fitxer CSS importat */
+
+.settings-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000; /* Assegura't que estigui per sobre d'altres elements */
+}
+
+.settings-icon {
+  cursor: pointer; /* Fa que la icona sembli un botó clicable */
+  font-size: 24px; /* Ajusta la mida de la icona */
+  color: #343a40; /* Color visible per defecte (fosc) */
+  padding: 5px; /* Espai al voltant de la icona */
+}
+
+/* Elimina la fletxa per defecte del Dropdown */
+.settings-icon::after {
+  display: none; /* Oculta la fletxa */
+}
+
+.settings-icon:hover {
+  color: #495057; /* Canvia el color de la icona en fer hover */
+}
