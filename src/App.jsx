@@ -1,9 +1,10 @@
 // src/App.jsx
 import React, { useState } from 'react';
-import Scene from './components/Scene';
-import StartButton from './components/StartButton'; // Nou component per al botó d'inici
-import InfoText from './components/InfoText'; // Nou component per al text informatiu
+import StartButton from './components/StartButton'; 
+import InfoText from './components/InfoText'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Scene from './components/Scene';
+
 
 function App() {
   const [showStart, setShowStart] = useState(true); // Estat per mostrar el botó i el text inicial
