@@ -49,7 +49,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       onLoadingProgress(progress);
     };
 
-    loader.load('/model/room.glb', function (gltf) {
+    loader.load('./model/room.glb', function (gltf) {
       scene.add(gltf.scene);
 
       movieCounter = gltf.scene.getObjectByName('movieCounter');
