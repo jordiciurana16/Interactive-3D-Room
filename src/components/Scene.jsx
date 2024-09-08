@@ -49,7 +49,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       onLoadingProgress(progress);
     };
 
-    loader.load('/Interactive-3D-Room/public/model/room.glb', function (gltf) {
+    loader.load('/Interactive-3D-Room/model/room.glb', function (gltf) {
       scene.add(gltf.scene);
 
       movieCounter = gltf.scene.getObjectByName('movieCounter');
@@ -115,19 +115,19 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     const audioLoader = new THREE.AudioLoader();
 
     function loadSounds() {
-      audioLoader.load('/model/assets/sound/creeper.mp3', function (buffer) {
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/creeper.mp3', function (buffer) {
         soundCreeper.setBuffer(buffer);
         soundCreeper.setLoop(false);
         soundCreeper.setVolume(0.5);
       });
 
-      audioLoader.load('/model/assets/sound/ender.mp3', function (buffer) {
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/ender.mp3', function (buffer) {
         soundEnder.setBuffer(buffer);
         soundEnder.setLoop(false);
         soundEnder.setVolume(0.5);
       });
 
-      audioLoader.load('/model/assets/sound/skeleton.mp3', function (buffer) {
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/skeleton.mp3', function (buffer) {
         soundSkeleton.setBuffer(buffer);
         soundSkeleton.setLoop(false);
         soundSkeleton.setVolume(0.5);
