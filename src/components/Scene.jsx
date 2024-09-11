@@ -3,10 +3,15 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { AudioLoader, AudioListener, Audio } from 'three';
+import { gsap } from 'gsap';
 
 const Scene = ({ moveCamera, onLoadingProgress }) => {
   const mountRef = useRef(null);
-  const cameraRef = useRef(); // Referència a la càmera
+  const cameraRef = useRef(); 
+  const initialBoxPosition = useRef(null); 
+  const initialCoinPosition = useRef(null); 
+  const initialRedMushroomPosition = useRef(null); 
+  const initialGreenMushroomPosition = useRef(null); 
 
   useEffect(() => {
     const currentMount = mountRef.current;
@@ -14,21 +19,18 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     const aspect = window.innerWidth / window.innerHeight;
     const d = 7.5;
 
-    // Crear i guardar la càmera en una referència
     const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
     camera.position.set(5, 2, 5);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
-    cameraRef.current = camera; // Emmagatzema la càmera en la referència
+    cameraRef.current = camera; 
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.9;
     currentMount.appendChild(renderer.domElement);
-
-    renderer.setClearColor(0xffffff);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 2);
     scene.add(ambientLight);
@@ -43,6 +45,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     let creeperHead, enderHead, skeletonHead;
     let paintingCounter, greatWave, persistenceMemory, theScream, venusBirth;
     let headCounter;
+    let boxCounter, misteryBox, coin, redMushrooms, greenMushrooms; 
+    let musicCounter, vinyl; // Definim els nous objectes
 
     loader.manager.onProgress = function (item, loaded, total) {
       const progress = (loaded / total) * 100;
@@ -57,6 +61,9 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       eStataLaManoDiDio = gltf.scene.getObjectByName('eStataLaManoDiDio');
       theTrumanShow = gltf.scene.getObjectByName('theTrumanShow');
       forrestGump = gltf.scene.getObjectByName('forrestGump');
+      boxCounter = gltf.scene.getObjectByName('boxCounter');
+      misteryBox = gltf.scene.getObjectByName('box');
+      coin = gltf.scene.getObjectByName('coin');
 
       paintingCounter = gltf.scene.getObjectByName('paintingCounter');
       greatWave = gltf.scene.getObjectByName('greatWave');
@@ -68,6 +75,12 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       creeperHead = gltf.scene.getObjectByName('creeper');
       enderHead = gltf.scene.getObjectByName('ender');
       skeletonHead = gltf.scene.getObjectByName('skeleton');
+
+      redMushrooms = gltf.scene.getObjectByName('redMushroom');
+      greenMushrooms = gltf.scene.getObjectByName('greenMushroom');
+
+      musicCounter = gltf.scene.getObjectByName('musicCounter'); // Carreguem el nou objecte
+      vinyl = gltf.scene.getObjectByName('vinyl'); // Carreguem l'objecte vinyl
 
       if (movieCounter) movieCounter.visible = false;
       if (fantasticMrFox) fantasticMrFox.visible = true;
@@ -85,6 +98,30 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       if (creeperHead) creeperHead.visible = true;
       if (enderHead) enderHead.visible = false;
       if (skeletonHead) skeletonHead.visible = false;
+
+      if (boxCounter) boxCounter.visible = false;
+      if (musicCounter) musicCounter.visible = false;
+
+
+
+      if (coin) {
+        coin.visible = false;
+        initialCoinPosition.current = coin.position.clone();
+      }
+
+      if (misteryBox) initialBoxPosition.current = misteryBox.position.clone();
+
+      if (redMushrooms) {
+        redMushrooms.visible = false;
+        initialRedMushroomPosition.current = redMushrooms.position.clone();
+      }
+      
+      if (greenMushrooms) {
+        greenMushrooms.visible = false;
+        initialGreenMushroomPosition.current = greenMushrooms.position.clone();
+      }
+
+      if (vinyl) vinyl.visible = true; // Inicialitzem el vinil com a visible
 
       animate();
     }, undefined, function (error) {
@@ -104,6 +141,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     let movieClickState = 0;
     let paintingClickState = 0;
     let headClickState = 0;
+    let boxCounterState = 0;
+    let musicClickState = 0; // Estat per al musicCounter
 
     const listener = new THREE.AudioListener();
     camera.add(listener);
@@ -111,6 +150,10 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     const soundCreeper = new THREE.Audio(listener);
     const soundEnder = new THREE.Audio(listener);
     const soundSkeleton = new THREE.Audio(listener);
+    const soundCoin = new THREE.Audio(listener);
+    const soundRedMushroom = new THREE.Audio(listener);
+    const soundGreenMushroom = new THREE.Audio(listener);
+    const soundVinyl = new THREE.Audio(listener); // Afegim el so del vinil
 
     const audioLoader = new THREE.AudioLoader();
 
@@ -118,33 +161,56 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       audioLoader.load('/Interactive-3D-Room/model/assets/sound/creeper.mp3', function (buffer) {
         soundCreeper.setBuffer(buffer);
         soundCreeper.setLoop(false);
-        soundCreeper.setVolume(0.5);
+        soundCreeper.setVolume(0.3);
       });
 
       audioLoader.load('/Interactive-3D-Room/model/assets/sound/ender.mp3', function (buffer) {
         soundEnder.setBuffer(buffer);
         soundEnder.setLoop(false);
-        soundEnder.setVolume(0.5);
+        soundEnder.setVolume(0.3);
       });
 
       audioLoader.load('/Interactive-3D-Room/model/assets/sound/skeleton.mp3', function (buffer) {
         soundSkeleton.setBuffer(buffer);
         soundSkeleton.setLoop(false);
-        soundSkeleton.setVolume(0.5);
+        soundSkeleton.setVolume(0.3);
+      });
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/coin.ogg', function (buffer) {
+        soundCoin.setBuffer(buffer);
+        soundCoin.setLoop(false);
+        soundCoin.setVolume(0.3);
+      });
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/redMushroom.mp3', function (buffer) {
+        soundRedMushroom.setBuffer(buffer);
+        soundRedMushroom.setLoop(false);
+        soundRedMushroom.setVolume(0.3);
+      });
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/greenMushroom.mp3', function (buffer) {
+        soundGreenMushroom.setBuffer(buffer);
+        soundGreenMushroom.setLoop(false);
+        soundGreenMushroom.setVolume(0.3);
+      });
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/vinyl.mp3', function (buffer) { // Carreguem el so del vinil
+        soundVinyl.setBuffer(buffer);
+        soundVinyl.setLoop(true); // Activem el loop per al vinil
+        soundVinyl.setVolume(0.5);
       });
     }
 
-    // Detecta el moviment del ratolí i actualitza el cursor
+    function getNormalizedBounceHeight(object) {
+      const bounceHeight = 2.5;
+      const distance = camera.position.distanceTo(object.position);
+      return bounceHeight / distance;
+    }
+
     const onMouseMove = (event) => {
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
 
-      // Detecta la intersecció amb els objectes específics
-      const intersects = raycaster.intersectObjects([movieCounter, paintingCounter, headCounter].filter(Boolean), true);
+      const intersects = raycaster.intersectObjects([movieCounter, paintingCounter, headCounter, boxCounter, musicCounter].filter(Boolean), true);
 
-      // Canvia el cursor a pointer si es fa hover sobre algun objecte
       if (intersects.length > 0) {
         document.body.style.cursor = 'pointer';
       } else {
@@ -152,7 +218,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       }
     };
 
-    window.addEventListener('mousemove', onMouseMove); // Afegir event listener per "mousemove"
+    window.addEventListener('mousemove', onMouseMove);
 
     function switchToDayScene() {
       directionalLight.intensity = 1;
@@ -162,6 +228,66 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     function switchToNightScene() {
       directionalLight.intensity = 0.1;
       ambientLight.intensity = 0.1;
+    }
+
+    function animateMushroom(mushroom, initialPosition) {
+      if (!mushroom) return;
+    
+      const velocity = 4; 
+    
+      const timeline = gsap.timeline({
+        onComplete: () => {
+          mushroom.position.copy(initialPosition); 
+          mushroom.visible = false; 
+        }
+      });
+    
+      function calculateDuration(distance) {
+        return distance / velocity; 
+      }
+    
+      timeline.to(mushroom.position, { 
+        y: "+=0.5", 
+        duration: calculateDuration(0.8), 
+        ease: "power2.out" 
+      })
+      .to(mushroom.position, { 
+        x: "+=0.8",
+        duration: calculateDuration(0.8), 
+        ease: "linear" 
+      })
+      .to(mushroom.position, { 
+        y: "-=2.9", 
+        duration: calculateDuration(2.9), 
+        ease: "linear" 
+      })
+      .to(mushroom.position, { 
+        x: "+=1.2",
+        duration: calculateDuration(1.2), 
+        ease: "linear" 
+      })
+      .to(mushroom.position, { 
+        z: "+=1.4",
+        duration: calculateDuration(1.4), 
+        ease: "linear" 
+      })
+      .to(mushroom.position, { 
+        y: "-=1.05",
+        duration: calculateDuration(1.05), 
+        ease: "linear" 
+      })
+      .to(mushroom.position, { 
+        z: "+=3.2",
+        duration: calculateDuration(3.2), 
+        ease: "linear" 
+      })
+      .to(mushroom.position, { 
+        y: "-=10",
+        duration: calculateDuration(10), 
+        ease: "linear" 
+      });
+      timeline.play();
+
     }
 
     function onMouseClick(event) {
@@ -202,6 +328,58 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
           }
 
           console.log('Pel·lícula visible:', movieClickState);
+        }
+
+        if (selectedObject.name === 'boxCounter') {
+          console.log('Clic detectat a boxCounter');
+
+          boxCounterState = (boxCounterState + 1) % 11;
+
+          if (boxCounterState === 4 && redMushrooms) {
+            redMushrooms.visible = true;
+            soundRedMushroom.play();
+            animateMushroom(redMushrooms, initialRedMushroomPosition.current);
+
+          } else if (boxCounterState === 10 && greenMushrooms) {
+            greenMushrooms.visible = true;
+            soundGreenMushroom.play();
+            animateMushroom(greenMushrooms, initialGreenMushroomPosition.current);
+
+            boxCounterState = 0;
+          } else {
+            gsap.killTweensOf(misteryBox.position);
+            misteryBox.position.copy(initialBoxPosition.current);
+
+            const normalizedHeight = getNormalizedBounceHeight(misteryBox);
+            gsap.to(misteryBox.position, {
+              y: initialBoxPosition.current.y + normalizedHeight,
+              duration: 0.2,
+              yoyo: true,
+              repeat: 1,
+              ease: "power1.inOut",
+              onComplete: () => {
+                misteryBox.position.copy(initialBoxPosition.current);
+              },
+            });
+
+            if (coin && misteryBox.position.y === initialBoxPosition.current.y) {
+              coin.visible = true;
+              gsap.to(coin.position, {
+                y: initialCoinPosition.current.y + 2,
+                duration: 0.5,
+                onStart: () => soundCoin.play(),
+                onComplete: () => {
+                  coin.visible = false;
+                  coin.position.copy(initialCoinPosition.current);
+                },
+              });
+              gsap.to(coin.rotation, {
+                y: "+=720",
+                duration: 0.5,
+                ease: "power1.inOut",
+              });
+            }
+          }
         }
 
         if (selectedObject.name === 'paintingCounter') {
@@ -250,6 +428,19 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
           console.log('Cap visible:', headClickState);
         }
 
+        if (selectedObject.name === 'musicCounter') { 
+          console.log('Clic detectat a musicCounter');
+        
+          if (soundVinyl.isPlaying) {
+            soundVinyl.pause(); // Pausa la reproducció si el so està sonant
+          } else {
+            soundVinyl.play(); // Reprodueix o reanuda el so si no està sonant
+          }
+        
+          console.log('Estat del vinil:', soundVinyl.isPlaying ? 'Reproduint' : 'Pausat');
+        }
+        
+
         while (selectedObject.parent && selectedObject.parent.type !== 'Scene' && selectedObject.name !== 'creeper') {
           selectedObject = selectedObject.parent;
         }
@@ -292,14 +483,12 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
 
     return () => {
       currentMount.removeChild(renderer.domElement);
-      window.removeEventListener('mousemove', onMouseMove); // Elimina l'event listener quan es destrueix el component
+      window.removeEventListener('mousemove', onMouseMove);
     };
   }, [onLoadingProgress]);
 
-  // Actualitza la posició de la càmera quan `moveCamera` canvia
   useEffect(() => {
     if (moveCamera && cameraRef.current) {
-      // Mou la càmera més a prop sense recarregar el model
       cameraRef.current.position.set(5, 4, 5);
     }
   }, [moveCamera]);

@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import StartButton from './components/StartButton';
 import InfoText from './components/InfoText';
@@ -6,21 +5,26 @@ import InteractiveElements from './components/InteractiveElements';
 import UserControls from './components/UserControls';
 import LoadingBar from './components/LoadingBar';
 import Scene from './components/Scene';
-import SettingsButton from './components/SettingsButton'; // Nou component per al botó de configuració
+import UserInterface from './components/UserInterface'; // Nou component
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const [step, setStep] = useState(0); // Estat per gestionar el pas actual
+  const [step, setStep] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingComplete, setLoadingComplete] = useState(false);
-  const [showUserControls, setShowUserControls] = useState(true); // Estat per controlar la visibilitat del component UserControls
-  const [isMusicPlaying, setIsMusicPlaying] = useState(true); // Estat per controlar si la música està en reproducció
-  const audioRef = useRef(null); // Referència per a l'objecte d'àudio
+  const [showUserControls, setShowUserControls] = useState(true);
+  const [likes, setLikes] = useState(0); // Estat per gestionar el número de "Likes"
+  const [views, setViews] = useState(0); // Estat per gestionar el número de "Visites"
 
-  // Funció per avançar al següent pas
+  useEffect(() => {
+    // Aquí pots inicialitzar els valors de "visites" i "likes" segons la tecnologia que facis servir
+    setViews(950); // Exemples de valors inicials
+    setLikes(643);
+  }, []);
+
   const nextStep = () => {
     if (step === 3) {
-      setShowUserControls(false); // Amaga el component UserControls quan arribi al pas 3
+      setShowUserControls(false);
     } else {
       setStep((prevStep) => prevStep + 1);
     }
@@ -28,7 +32,6 @@ function App() {
 
   useEffect(() => {
     const startTime = Date.now();
-
     const interval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       const percentLoaded = Math.min((elapsedTime / 3000) * 100, 99);
@@ -47,41 +50,16 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    // Crea un objecte d'àudio i guarda-ho en la referència
-    audioRef.current = new Audio('/model/assets/freeflow.mp3');
-    audioRef.current.loop = true;
-    audioRef.current.play().catch((error) => {
-      console.error('Error playing audio:', error);
-    });
-  }, []);
+  
 
   const handleStartClick = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch((error) => {
-        console.error('Error playing audio:', error);
-      });
-    }
-    nextStep(); // Avança al següent pas
-  };
-
-  const toggleMusic = () => {
-    if (audioRef.current) {
-      if (isMusicPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch((error) => {
-          console.error('Error playing audio:', error);
-        });
-      }
-      setIsMusicPlaying(!isMusicPlaying); // Alterna l'estat de la música
-    }
+    
+    nextStep();
   };
 
   return (
     <div className="App">
       <div className="canvas-container">
-        <SettingsButton isMusicPlaying={isMusicPlaying} toggleMusic={toggleMusic} /> {/* Passa l'estat i la funció */}
         <Scene moveCamera={step > 0} />
         {!loadingComplete ? (
           <LoadingBar progress={loadingProgress} />
@@ -93,6 +71,8 @@ function App() {
             {step === 3 && showUserControls && <UserControls onHide={nextStep} />}
           </>
         )}
+        {/* Afegeix la interfície d'usuari a la pantalla */}
+        <UserInterface likes={likes} views={views} />
       </div>
     </div>
   );

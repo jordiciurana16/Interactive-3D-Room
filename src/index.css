@@ -1,14 +1,25 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
 .canvas-container {
   position: relative;
   width: 100%;
   height: 100vh;
+  background: radial-gradient(circle at center, #f0f0ff 20%, #d9d9e6 40%, #b3b3cc 80%); /* Gradient radial més definit i concentrat */
 }
+
 
 .start-button, .tour-text {
   position: absolute;
   left: 50%;
   transform: translate(-50%, 0);
-  transition: transform 0.3s ease, opacity 1s ease; /* Afegir transició d'opacitat */
+  transition: transform 0.3s ease, opacity 1s ease;
 }
 
 /* Animació d'escalat suau en loop */
@@ -25,13 +36,13 @@
   bottom: 25%;
   font-size: 24px;
   padding: 10px 20px;
-  animation: pulse 2s infinite; /* Aplica l'animació de pulsació */
-  opacity: 1; /* Fes el botó visible per defecte */
+  animation: pulse 2s infinite;
+  opacity: 1;
 }
 
 .start-button:hover {
-  animation: none; /* Atura l'animació de pulsació */
-  transform: translate(-50%, 0) scale(1.1); /* Animació smooth amb escala en hover */
+  animation: none;
+  transform: translate(-50%, 0) scale(1.1);
 }
 
 .loading-bar {
@@ -40,7 +51,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 50%;
-  transition: opacity 1s ease; /* Transició suau */
+  transition: opacity 1s ease;
 }
 
 .percentage {
@@ -56,16 +67,15 @@
   width: 30%;
   text-align: justify;
   font-size: 14px;
-  transition: opacity 1s ease; /* Transició suau */
+  transition: opacity 1s ease;
 }
 
-/* Posició absoluta per al text */
 .tour-text {
   bottom: 15%;
   left: 50%;
   transform: translate(-50%, 0);
   position: absolute;
-  opacity: 1; /* Inici visible */
+  opacity: 1;
   transition: opacity 0.5s ease;
 }
 
@@ -79,27 +89,86 @@
   transition: opacity 1s ease;
 }
 
-/* src/App.css o un altre fitxer CSS importat */
-
 .settings-button {
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 1000; /* Assegura't que estigui per sobre d'altres elements */
+  z-index: 1000;
 }
 
 .settings-icon {
-  cursor: pointer; /* Fa que la icona sembli un botó clicable */
-  font-size: 24px; /* Ajusta la mida de la icona */
-  color: #343a40; /* Color visible per defecte (fosc) */
-  padding: 5px; /* Espai al voltant de la icona */
+  cursor: pointer;
+  font-size: 24px;
+  color: #343a40;
+  padding: 5px;
 }
 
-/* Elimina la fletxa per defecte del Dropdown */
 .settings-icon::after {
-  display: none; /* Oculta la fletxa */
+  display: none;
 }
 
 .settings-icon:hover {
-  color: #495057; /* Canvia el color de la icona en fer hover */
+  color: #495057;
+}
+
+.blinking-cursor {
+  font-size: inherit;
+  color: black;
+  animation: blink 0.75s step-end infinite;
+}
+
+@keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+.user-interface {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: repeat(2, auto);
+  align-items: stretch;
+  gap: 5px;
+}
+
+.likes-counter, .views-counter {
+  display: flex;
+  align-items: center;
+}
+
+.likes-counter span, .views-counter span {
+  font-size: 16px;
+}
+
+.like-button {
+  background-color: rgba(0, 0, 0, 0.144);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  padding: 10px;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.2s;
+  width: 100%; /* Assegura que l'ample sigui igual a l'alçada */
+  aspect-ratio: 1; /* Manté una proporció d'aspecte de 1:1 perquè sigui quadrat */
+}
+
+.like-button:hover {
+  background-color: rgba(0, 0, 0, 0.144);
+  transform: scale(1.1);
+}
+.like-button svg {
+  font-size: 24px; /* Augmenta la mida de la icona */
 }
