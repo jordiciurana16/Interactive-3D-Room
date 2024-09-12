@@ -1,8 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { AudioLoader, AudioListener, Audio } from 'three';
+import Gift from './Gift'; // Importa el component Gift
+import Pokeball from './Pokeball'; // Importa el nou component Pokeball
+
+
 import { gsap } from 'gsap';
 
 const Scene = ({ moveCamera, onLoadingProgress }) => {
@@ -12,6 +16,10 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
   const initialCoinPosition = useRef(null); 
   const initialRedMushroomPosition = useRef(null); 
   const initialGreenMushroomPosition = useRef(null); 
+  const [showGift, setShowGift] = useState(false); // Estat per controlar la visualització del component Gift
+  const [showPokeball, setShowPokeball] = useState(false);
+
+
 
   useEffect(() => {
     const currentMount = mountRef.current;
@@ -47,6 +55,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     let headCounter;
     let boxCounter, misteryBox, coin, redMushrooms, greenMushrooms; 
     let musicCounter, vinyl; // Definim els nous objectes
+    let gift, giftCounter;
+    let pokeball;
 
     loader.manager.onProgress = function (item, loaded, total) {
       const progress = (loaded / total) * 100;
@@ -64,6 +74,16 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       boxCounter = gltf.scene.getObjectByName('boxCounter');
       misteryBox = gltf.scene.getObjectByName('box');
       coin = gltf.scene.getObjectByName('coin');
+
+      gift = gltf.scene.getObjectByName('gift');
+      giftCounter = gltf.scene.getObjectByName('giftCounter');
+
+      pokeball = gltf.scene.getObjectByName('pokeball');
+
+
+    
+
+
 
       paintingCounter = gltf.scene.getObjectByName('paintingCounter');
       greatWave = gltf.scene.getObjectByName('greatWave');
@@ -94,6 +114,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       if (theScream) theScream.visible = false;
       if (venusBirth) venusBirth.visible = false;
 
+      if (giftCounter) giftCounter.visible = false;
+
       if (headCounter) headCounter.visible = false;
       if (creeperHead) creeperHead.visible = true;
       if (enderHead) enderHead.visible = false;
@@ -101,6 +123,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
 
       if (boxCounter) boxCounter.visible = false;
       if (musicCounter) musicCounter.visible = false;
+
+      if (pokeball) pokeball.visible = false;
 
 
 
@@ -143,6 +167,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     let headClickState = 0;
     let boxCounterState = 0;
     let musicClickState = 0; // Estat per al musicCounter
+    let giftCounterState = 0;
 
     const listener = new THREE.AudioListener();
     camera.add(listener);
@@ -154,8 +179,12 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     const soundRedMushroom = new THREE.Audio(listener);
     const soundGreenMushroom = new THREE.Audio(listener);
     const soundVinyl = new THREE.Audio(listener); // Afegim el so del vinil
+    const soundGift = new THREE.Audio(listener); // Afegim el so del vinil
+
 
     const audioLoader = new THREE.AudioLoader();
+
+    
 
     function loadSounds() {
       audioLoader.load('/Interactive-3D-Room/model/assets/sound/creeper.mp3', function (buffer) {
@@ -195,6 +224,11 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
         soundVinyl.setLoop(true); // Activem el loop per al vinil
         soundVinyl.setVolume(0.5);
       });
+      audioLoader.load('/Interactive-3D-Room/model/assets/sound/gift.mp3', function (buffer) { // Carreguem el so del vinil
+        soundGift.setBuffer(buffer);
+        soundGift.setLoop(false); // Activem el loop per al vinil
+        soundGift.setVolume(0.5);
+      });
     }
 
     function getNormalizedBounceHeight(object) {
@@ -209,7 +243,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
 
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObjects([movieCounter, paintingCounter, headCounter, boxCounter, musicCounter].filter(Boolean), true);
+      const intersects = raycaster.intersectObjects([movieCounter, paintingCounter, headCounter, boxCounter, musicCounter, giftCounter].filter(Boolean), true);
 
       if (intersects.length > 0) {
         document.body.style.cursor = 'pointer';
@@ -289,6 +323,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       timeline.play();
 
     }
+    
 
     function onMouseClick(event) {
       event.preventDefault();
@@ -330,6 +365,52 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
           console.log('Pel·lícula visible:', movieClickState);
         }
 
+        if (selectedObject.name === 'giftCounter') {
+          console.log('Clic detectat a giftCounter');
+          // Animació de salt i rotació per a l'objecte gift
+          if (gift && giftCounterState < 1) {
+            const initialPosition = gift.position.clone(); // Guardar la posició inicial
+            const initialRotation = gift.rotation.clone(); // Guardar la rotació inicial
+        
+            const timeline = gsap.timeline(); // Crear una línia de temps amb gsap
+        
+            // Animació de salt en l'eix Y
+            timeline.to(gift.position, {
+              y: initialPosition.y + 0.5, // Salt de 1 unitat en l'eix Y
+              duration: 0.2,
+              ease: "power1.out"
+            })
+        
+            // Animació de rotació controlada en l'eix Z quan està a la part superior
+            .to(gift.rotation, {
+              x: initialRotation.x - 1, // Rotació de -0.5 radians en l'eix Z
+              duration: 0.2,
+              ease: "power1.inOut"
+            })
+            .to(gift.rotation, {
+              x: initialRotation.x + 0.5, // Rotació de 0.5 radians en l'eix Z
+              duration: 0.2,
+              ease: "power1.inOut"
+            })
+            .to(gift.rotation, {
+              x: initialRotation.x, // Tornar a la rotació inicial en l'eix Z
+              duration: 0.2,
+              ease: "power1.inOut"
+            })
+        
+            // Tornar a la posició original
+            .to(gift.position, {
+              y: initialPosition.y, // Tornar a la posició original
+              duration: 0.5,
+              ease: "bounce.out"
+            });
+            giftCounterState += 1;
+          } else if (giftCounterState === 1) {
+            setShowGift(true); // Mostra el component Gift quan el comptador arriba a 2
+            soundGift.play();
+            gift.visible = false;
+
+          }}        
         if (selectedObject.name === 'boxCounter') {
           console.log('Clic detectat a boxCounter');
 
@@ -493,7 +574,17 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     }
   }, [moveCamera]);
 
-  return <div ref={mountRef} />;
+  const handleOpenGift = () => {
+    setShowGift(false); // Canvia l'estat per mostrar Pokeball en lloc de Gift
+    setShowPokeball(true); 
+
+  };
+
+  return (
+    <div ref={mountRef} className="canvas-container">
+ {showGift && <Gift onOpenGift={handleOpenGift} />} {/* Renderitza Gift només quan es mostri */}
+ {showPokeball && <Pokeball />}      </div>
+  );
 };
 
 export default Scene;
