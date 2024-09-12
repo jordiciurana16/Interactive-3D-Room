@@ -1,25 +1,23 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { gsap } from 'gsap';
 
-const Pokeball = () => {
+const Pokeball = ({ onShowPokeball }) => {
   const pokeballRef = useRef(null);
-  const [sound] = useState(() => new Audio('/Interactive-3D-Room/model/assets/sound/pokeball.mp3')); // Càrrega del so
   let pokeballObject;
 
   useEffect(() => {
     if (!pokeballRef.current) return;
 
-    // Configuració Three.js per carregar l'objecte Pokeball
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000); // Relació d'aspecte 1:1 per un canvas quadrat
-    camera.position.set(0, 0.1, 0.4); // Apropa encara més la càmera a la Pokeball
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    camera.position.set(0, 0.1, 0.4);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(100, 100); // Ajusta el canvas a 100x100 píxels
+    renderer.setSize(100, 100);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -41,24 +39,26 @@ const Pokeball = () => {
     const loader = new GLTFLoader();
     loader.load('/Interactive-3D-Room/model/pokeball.glb', (gltf) => {
       pokeballObject = gltf.scene;
-      pokeballObject.scale.set(1, 1, 1); // Assegura que l'escala sigui uniforme per evitar distorsió
+      pokeballObject.scale.set(1, 1, 1);
       scene.add(pokeballObject);
 
-      // Afegeix funcionalitat de hover per a escalar la Pokeball
+      // Funcions per a l'animació de hover
       const handleMouseOver = () => {
-        gsap.to(pokeballObject.scale, { x: 1.2, y: 1.2, z: 1.2, duration: 0.3 }); // Augmenta l'escala en fer hover
-        document.body.style.cursor = 'pointer'; // Canvia el cursor a pointer
+        gsap.to(pokeballObject.scale, { x: 1.2, y: 1.2, z: 1.2, duration: 0.3 });
+        document.body.style.cursor = 'pointer';
       };
 
       const handleMouseOut = () => {
-        gsap.to(pokeballObject.scale, { x: 1, y: 1, z: 1, duration: 0.3 }); // Torna l'escala a normal
-        document.body.style.cursor = 'default'; // Torna el cursor a normal
+        gsap.to(pokeballObject.scale, { x: 1, y: 1, z: 1, duration: 0.3 });
+        document.body.style.cursor = 'default';
       };
 
-      // Afegeix esdeveniment de clic per reproduir el so
+      // Esdeveniment de clic per reproduir el so i fer visible la pokeball a Scene
       const handleClick = () => {
-        sound.play(); // Reprodueix el so
+        if (onShowPokeball) onShowPokeball();
+        if (onHidePokeball) onHidePokeball(); // Crida la funció per deixar de renderitzar el component
       };
+      
 
       // Afegeix els esdeveniments al canvas
       renderer.domElement.addEventListener('mouseover', handleMouseOver);
@@ -80,15 +80,14 @@ const Pokeball = () => {
       if (pokeballRef.current) {
         pokeballRef.current.removeChild(renderer.domElement);
       }
-      document.body.style.cursor = 'default'; // Assegura que el cursor torni a ser normal quan es desmunti el component
+      document.body.style.cursor = 'default';
     };
-  }, [sound]);
+  }, [onShowPokeball]);
 
   return (
     <div className="info-text" style={{ marginBottom: '0px', position: 'absolute', zIndex: 2, top: '10%', left: '5%' }}>
       <h3>It's a pokèmon!</h3>
-      <p>Click on the pokeball and let it out.</p>
-      <div ref={pokeballRef} style={{ width: '100px', height: '100px', marginTop: '10px', position: 'relative', cursor:'pointer' }}></div> {/* Ajusta la mida del contenidor */}
+      <div ref={pokeballRef} style={{ width: '100px', height: '100px', marginTop: '10px', position: 'relative', cursor: 'pointer' }}></div>
     </div>
   );
 };
