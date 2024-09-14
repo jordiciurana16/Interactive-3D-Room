@@ -9,7 +9,7 @@ import Pokeball from './Pokeball'; // Importa el nou component Pokeball
 
 import { gsap } from 'gsap';
 
-const Scene = ({ moveCamera, onLoadingProgress }) => {
+const Scene = ({ moveCamera, onLoadingProgress, allowInteraction }) => {
   const mountRef = useRef(null);
   const cameraRef = useRef(); 
   const initialBoxPosition = useRef(null); 
@@ -264,6 +264,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     }
 
     const onMouseMove = (event) => {
+      if (!allowInteraction) return; // Impedeix la interacció si no es permet
+
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -354,6 +356,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     
 
     function onMouseClick(event) {
+      if (!allowInteraction) return; // Impedeix la interacció si no es permet
+
       event.preventDefault();
       if (event.touches) {
         mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
@@ -362,6 +366,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
       }
+    
 
       raycaster.setFromCamera(mouse, camera);
 
@@ -632,7 +637,18 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       currentMount.removeChild(renderer.domElement);
       window.removeEventListener('mousemove', onMouseMove);
     };
-  }, [onLoadingProgress]);
+    if (allowInteraction) {
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('click', onMouseClick);
+      window.addEventListener('touchstart', onMouseClick);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('click', onMouseClick);
+      window.removeEventListener('touchstart', onMouseClick);
+    };
+  }, [allowInteraction, onLoadingProgress]);
 
   useEffect(() => {
     if (moveCamera && cameraRef.current) {
@@ -685,6 +701,8 @@ const handleHidePokeball = () => {
 
   }
 };
+
+
 return (
   <div ref={mountRef} className="canvas-container">
     {showGift && <Gift onOpenGift={handleOpenGift} />}

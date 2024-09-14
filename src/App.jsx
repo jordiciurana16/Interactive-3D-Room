@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import StartButton from './components/StartButton';
 import InfoText from './components/InfoText';
 import InteractiveElements from './components/InteractiveElements';
@@ -15,6 +15,7 @@ function App() {
   const [showUserControls, setShowUserControls] = useState(true);
   const [likes, setLikes] = useState(0); // Estat per gestionar el número de "Likes"
   const [views, setViews] = useState(0); // Estat per gestionar el número de "Visites"
+  const [allowInteraction, setAllowInteraction] = useState(false); // Estat per gestionar la interactivitat amb la Scene
 
   useEffect(() => {
     // Aquí pots inicialitzar els valors de "visites" i "likes" segons la tecnologia que facis servir
@@ -25,6 +26,7 @@ function App() {
   const nextStep = () => {
     if (step === 3) {
       setShowUserControls(false);
+      setAllowInteraction(true); // Permet la interacció després del quart pas
     } else {
       setStep((prevStep) => prevStep + 1);
     }
@@ -50,23 +52,20 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  
-
   const handleStartClick = () => {
-    
     nextStep();
   };
 
   return (
     <div className="App">
       <div className="canvas-container">
-        <Scene moveCamera={step > 0} />
+        <Scene moveCamera={step > 0} allowInteraction={allowInteraction} />
         {!loadingComplete ? (
           <LoadingBar progress={loadingProgress} />
         ) : (
           <>
-            {step === 0 && <StartButton onClick={handleStartClick} />} 
-            {step === 1 && <InfoText onShowInteractiveElements={nextStep} />} 
+            {step === 0 && <StartButton onClick={handleStartClick} />}
+            {step === 1 && <InfoText onShowInteractiveElements={nextStep} />}
             {step === 2 && <InteractiveElements onShowUserControls={nextStep} />}
             {step === 3 && showUserControls && <UserControls onHide={nextStep} />}
           </>
