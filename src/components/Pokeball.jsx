@@ -35,14 +35,12 @@ const Pokeball = ({ onShowPokeball }) => {
     directionalLight.position.set(0, 5, 0);
     scene.add(directionalLight);
 
-    // Carrega l'objecte Pokeball
     const loader = new GLTFLoader();
     loader.load('/Interactive-3D-Room/model/pokeball.glb', (gltf) => {
       pokeballObject = gltf.scene;
       pokeballObject.scale.set(1, 1, 1);
       scene.add(pokeballObject);
 
-      // Funcions per a l'animació de hover
       const handleMouseOver = () => {
         gsap.to(pokeballObject.scale, { x: 1.2, y: 1.2, z: 1.2, duration: 0.3 });
         document.body.style.cursor = 'pointer';
@@ -53,17 +51,16 @@ const Pokeball = ({ onShowPokeball }) => {
         document.body.style.cursor = 'default';
       };
 
-      // Esdeveniment de clic per reproduir el so i fer visible la pokeball a Scene
+      // Esdeveniment de clic per mostrar la Pokeball de l'escena
       const handleClick = () => {
-        if (onShowPokeball) onShowPokeball();
-        if (onHidePokeball) onHidePokeball(); // Crida la funció per deixar de renderitzar el component
+        if (onShowPokeball) {
+          onShowPokeball(); // Crida la funció per mostrar l'objecte Pokeball i ocultar el component
+        }
       };
-      
 
-      // Afegeix els esdeveniments al canvas
       renderer.domElement.addEventListener('mouseover', handleMouseOver);
       renderer.domElement.addEventListener('mouseout', handleMouseOut);
-      renderer.domElement.addEventListener('click', handleClick);
+      renderer.domElement.addEventListener('click', handleClick); // Aquí afegim l'escoltador de l'esdeveniment clic
 
       animatePokeball();
     }, undefined, function (error) {

@@ -12,14 +12,14 @@ import { gsap } from 'gsap';
 const Scene = ({ moveCamera, onLoadingProgress }) => {
   const mountRef = useRef(null);
   const cameraRef = useRef(); 
-  const pokeballRef = useRef(null); // Referència per al objecte pokeball
-
   const initialBoxPosition = useRef(null); 
   const initialCoinPosition = useRef(null); 
   const initialRedMushroomPosition = useRef(null); 
   const initialGreenMushroomPosition = useRef(null); 
   const [showGift, setShowGift] = useState(false); // Estat per controlar la visualització del component Gift
   const [showPokeball, setShowPokeball] = useState(false); // Estat per controlar la visualització de Pokeball
+  const pokeballRef = useRef(); // Ref per a l'objecte pokeball
+
 
 
 
@@ -56,7 +56,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     let creeperHead, enderHead, skeletonHead;
     let paintingCounter, greatWave, persistenceMemory, theScream, venusBirth;
     let headCounter;
-    let boxCounter, misteryBox, coin, redMushrooms, greenMushrooms; 
+    let boxCounter, misteryBox, coin, redMushrooms, greenMushrooms;
     let musicCounter, vinyl; // Definim els nous objectes
     let gift, giftCounter;
     let pokeball;
@@ -65,7 +65,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       const progress = (loaded / total) * 100;
       onLoadingProgress(progress);
     };
-
+    
     loader.load('/Interactive-3D-Room/model/room.glb', function (gltf) {
       scene.add(gltf.scene);
 
@@ -81,14 +81,23 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       gift = gltf.scene.getObjectByName('gift');
       giftCounter = gltf.scene.getObjectByName('giftCounter');
 
-      pokeball = gltf.scene.getObjectByName('pokeball');
+      pokeball = gltf.scene.getObjectByName('pokeball'); // Inicialitza l'objecte "pokeball"
+      pokeballRef.current = pokeball; // Emmagatzema la referència
       if (pokeball) {
-        pokeball.visible = false; // Inicialitza com invisible
-        pokeballRef.current = pokeball; // Assigna la referència
-      }
+        pokeball.visible = false; // Manté la Pokeball invisible inicialment
+        const pokeballHitbox = new THREE.Mesh(
+          new THREE.BoxGeometry(1, 1, 1), // Ajusta les dimensions segons sigui necessari
+          new THREE.MeshBasicMaterial({ visible: false }) // Material invisible
+        );
+        pokeballHitbox.position.copy(pokeball.position);
+        pokeballHitbox.scale.set(1.2, 1.2, 1.2); // Ajusta l'escala segons sigui necessari
+        scene.add(pokeballHitbox);
+        pokeballRef.current.hitbox = pokeballHitbox;
 
-    
 
+      }    
+      
+      
 
 
       paintingCounter = gltf.scene.getObjectByName('paintingCounter');
@@ -108,6 +117,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       musicCounter = gltf.scene.getObjectByName('musicCounter'); // Carreguem el nou objecte
       vinyl = gltf.scene.getObjectByName('vinyl'); // Carreguem l'objecte vinyl
 
+
+
       if (movieCounter) movieCounter.visible = false;
       if (fantasticMrFox) fantasticMrFox.visible = true;
       if (eStataLaManoDiDio) eStataLaManoDiDio.visible = false;
@@ -119,6 +130,7 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       if (persistenceMemory) persistenceMemory.visible = false;
       if (theScream) theScream.visible = false;
       if (venusBirth) venusBirth.visible = false;
+
 
       if (giftCounter) giftCounter.visible = false;
 
@@ -157,6 +169,9 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       console.error(error);
     });
 
+    
+    
+    
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
@@ -183,11 +198,10 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     const soundCoin = new THREE.Audio(listener);
     const soundRedMushroom = new THREE.Audio(listener);
     const soundGreenMushroom = new THREE.Audio(listener);
-    const soundVinyl = new THREE.Audio(listener); // Afegim el so del vinil
-    const soundGift = new THREE.Audio(listener); // Afegim el so del vinil
     const soundPokeball = new THREE.Audio(listener); // Afegim el so del vinil
-
-
+    const soundVinyl = new THREE.Audio(listener); // Afegim el so del vinil
+    const soundGift = new THREE.Audio(listener); // Afegim el so del vini
+    
 
     const audioLoader = new THREE.AudioLoader();
 
@@ -255,7 +269,9 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
 
       raycaster.setFromCamera(mouse, camera);
 
-      const intersects = raycaster.intersectObjects([movieCounter, paintingCounter, headCounter, boxCounter, musicCounter, giftCounter].filter(Boolean), true);
+      const intersects = raycaster.intersectObjects([movieCounter, paintingCounter, headCounter, boxCounter, musicCounter, giftCounter, pokeballRef.current.hitbox, // Utilitza la hitbox per la Pokeball
+        // Afegim la Pokeball explícitament aquí
+      ].filter(Boolean), true);
 
       if (intersects.length > 0) {
         document.body.style.cursor = 'pointer';
@@ -354,6 +370,36 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
       if (intersects.length > 0) {
         let selectedObject = intersects[0].object;
 
+        // Comprova si l'objecte seleccionat és la Pokeball
+        if (selectedObject === pokeballRef.current.hitbox) {
+          console.log('Clic detectat a pokeball');
+          loader.load('/Interactive-3D-Room/model/teddiursa.glb', (gltf) => {
+      const teddiursa = gltf.scene;
+      teddiursa.scale.set(1, 1, 1); // Ajusta l'escala segons sigui necessari
+      teddiursa.position.set(-0.7, 1.71, -0.7); // Ajusta la posició segons sigui necessari
+      function degreesToRadians(degrees) {
+        return degrees * (Math.PI / 180);
+        
+      }
+
+      teddiursa.rotation.x = degreesToRadians(-70); // Rotació de 90 graus en l'eix X
+      teddiursa.rotation.z = degreesToRadians(85); // Rotació de 90 graus en l'eix X
+  
+      scene.add(teddiursa); // Afegeix Teddiursa a l'escena
+      console.log('Model Teddiursa carregat correctament!');
+    }, undefined, function (error) {
+      console.error('Error carregant el model Teddiursa:', error);
+    });
+
+    
+          // Oculta la Pokeball i elimina la hitbox
+          setShowPokeball(false);
+          pokeball.visible = false;
+          scene.remove(pokeballRef.current.hitbox); // Elimina la hitbox de l'escena
+          console.log('Reproduint so Pokeball');
+          soundPokeball.play(); // Reprodueix el so
+        }
+
         if (selectedObject.name === 'movieCounter') {
           console.log('Clic detectat a movieCounter');
 
@@ -426,11 +472,8 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
               gift.visible = false; // Oculta el regal després de l'animació
             });
         
-          } else if (giftCounterState === 2) {
-            // Si es el segon clic, reprodueix l'àudio de la Pokeball
-            soundPokeball.play()
           }
-        }     
+        }
         if (selectedObject.name === 'boxCounter') {
           console.log('Clic detectat a boxCounter');
 
@@ -547,6 +590,9 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
         }
       }
     }
+    
+    
+    
 
     function init() {
       loadSounds();
@@ -594,68 +640,62 @@ const Scene = ({ moveCamera, onLoadingProgress }) => {
     }
   }, [moveCamera]);
 
-  const handleOpenGift = () => {
-    setShowGift(false); // Canvia l'estat per mostrar Pokeball en lloc de Gift
-    setShowPokeball(true); 
+  const handleShowAndHidePokeball = () => {
+    setShowPokeball(false); // Oculta el component de Pokeball
 
-  };
-
-  function animatePokeball() {
-    if (!pokeballRef.current) return;
-
-    const initialPosition = new THREE.Vector3(2, 5, 2); // Posició inicial elevada
-    const targetPosition = new THREE.Vector3(2, 0.67, 2); // Posició de destí al terra
-    const reboundHeight = initialPosition.y * 0.25; // Alçada del rebot
-    const durationFall = 1.5; // Durada de la caiguda
-    const durationRebound = 0.75; // Durada del rebot
-
-    pokeballRef.current.position.copy(initialPosition);
-
-    const timeline = gsap.timeline();
-
-    // Animació de caiguda parabòlica
-    timeline.to(pokeballRef.current.position, {
-      x: targetPosition.x,
-      y: targetPosition.y,
-      z: targetPosition.z,
-      duration: durationFall,
-      ease: 'power2.in',
-      onComplete: () => {
-        // Animació de rebot
-        timeline.to(pokeballRef.current.position, {
-          y: reboundHeight,
-          duration: durationRebound,
-          ease: 'power2.out',
-        })
-        .to(pokeballRef.current.position, {
-          y: targetPosition.y,
-          duration: durationRebound,
-          ease: 'power2.in',
-        });
-      }
-    });
-  }
-
-
-  const handleShowPokeball = () => {
     if (pokeballRef.current) {
-      pokeballRef.current.visible = true; // Fes visible la pokeball
-      animatePokeball(); // Crida l'animació quan la Pokeball es fa visible
-
+      pokeballRef.current.visible = true; // Mostra l'objecte Pokeball de Three.js
+      animatePokeballFall(); // Crida a la funció per animar la caiguda de la Pokeball
     }
   };
+   const animatePokeballFall = () => {
+    const pokeball = pokeballRef.current;
+    if (!pokeball) return;
 
-  const handleHidePokeball = () => {
-    setShowPokeball(false); // Actualitza l'estat per deixar de mostrar el component Pokeball
+    // Comença amb la Pokeball a y+4
+    pokeball.position.y = 5;
+
+    // Anima la caiguda i el rebot amb GSAP
+    gsap.to(pokeball.position, {
+      y: 1.7, // Posició final a y=0 (a terra)
+      duration: 1.3 , // Durada de la caiguda
+      ease: 'bounce.out', // Efecte de rebot al tocar el terra
+    });
+    
+  };
+
+  const handleOpenGift = () => {
+    setShowGift(false);
+    setShowPokeball(true);
   };
   
+ // Funció per fer visible la Pokeball dins de Scene.jsx
+ const handleShowPokeball = () => {
+  setShowPokeball(true); // Canvia l'estat per mostrar el component Pokeball
+  if (pokeballRef.current) {
+    pokeballRef.current.visible = true; // Fa visible l'objecte Pokeball dins de l'escena
+  }
+};
 
-  return (
-    <div ref={mountRef} className="canvas-container">
-      {showGift && <Gift onOpenGift={handleOpenGift} />}
-      {showPokeball && <Pokeball onShowPokeball={handleShowPokeball} onHidePokeball={handleHidePokeball} />} 
-      </div>
-  );
+// Funció per ocultar la Pokeball dins de Scene.jsx
+const handleHidePokeball = () => {
+  setShowPokeball(false); // Oculta el component Pokeball
+  if (pokeballRef.current) {
+    pokeballRef.current.visible = false; // Oculta la Pokeball a l'escena
+
+  }
+};
+return (
+  <div ref={mountRef} className="canvas-container">
+    {showGift && <Gift onOpenGift={handleOpenGift} />}
+    {showPokeball && (
+      <Pokeball
+        onShowPokeball={handleShowAndHidePokeball} // Utilitza la nova funció per mostrar la Pokeball i ocultar el component
+        onHidePokeball={handleShowAndHidePokeball} // Reutilitza la mateixa funció per l'event de clic
+      />
+    )}
+  </div>
+);
 };
 
 export default Scene;
