@@ -4,7 +4,6 @@ import TypingText from './TypingText';
 
 const InteractiveElements = ({ onShowUserControls }) => {
   const [titleCompleted, setTitleCompleted] = useState(false);
-  const [firstParagraphCompleted, setFirstParagraphCompleted] = useState(false);
   const [secondParagraphCompleted, setSecondParagraphCompleted] = useState(false); // Estat per controlar el segon paràgraf
   const [lastParagraphCompleted, setLastParagraphCompleted] = useState(false);
 
@@ -19,20 +18,10 @@ const InteractiveElements = ({ onShowUserControls }) => {
         />
       </h3>
       {titleCompleted && (
-        <p>
-          <TypingText 
-            text="From posters of my favorite films to videogames that marked me, every corner of this room tells a story."
-            speed={15} 
-            onComplete={() => setFirstParagraphCompleted(true)} 
-            showCursor={!firstParagraphCompleted}
-          />
-        </p>
-      )}
-      {firstParagraphCompleted && (
         <>
           <p>
             <TypingText 
-              text=" Feel free to explore and click around the interactive elements to discover more about each item and its significance!" 
+              text="Feel free to explore and click around the interactive elements to discover more about each item and its significance!" 
               speed={15} 
               onComplete={() => setSecondParagraphCompleted(true)} // Actualitza l'estat quan el segon paràgraf es completa
               showCursor={!secondParagraphCompleted}

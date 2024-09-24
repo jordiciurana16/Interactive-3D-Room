@@ -11,18 +11,17 @@ body {
   position: relative;
   width: 100%;
   height: 100vh;
-  background: radial-gradient(circle at center, #f0f0ff 20%, #d9d9e6 40%, #b3b3cc 80%); /* Gradient radial més definit i concentrat */
+  background: radial-gradient(circle at center, #f0f0ff 20%, #d9d9e6 40%, #b3b3cc 80%);
 }
 
-
-.start-button, .tour-text {
+.start-button,
+.tour-text {
   position: absolute;
   left: 50%;
   transform: translate(-50%, 0);
   transition: transform 0.3s ease, opacity 1s ease;
 }
 
-/* Animació d'escalat suau en loop */
 @keyframes pulse {
   0%, 100% {
     transform: translate(-50%, 0) scale(1);
@@ -103,10 +102,6 @@ body {
   padding: 5px;
 }
 
-.settings-icon::after {
-  display: none;
-}
-
 .settings-icon:hover {
   color: #495057;
 }
@@ -118,7 +113,8 @@ body {
 }
 
 @keyframes blink {
-  from, to {
+  from,
+  to {
     color: transparent;
   }
   50% {
@@ -138,12 +134,14 @@ body {
   gap: 5px;
 }
 
-.likes-counter, .views-counter {
+.likes-counter,
+.views-counter {
   display: flex;
   align-items: center;
 }
 
-.likes-counter span, .views-counter span {
+.likes-counter span,
+.views-counter span {
   font-size: 16px;
 }
 
@@ -161,14 +159,55 @@ body {
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s, transform 0.2s;
-  width: 100%; /* Assegura que l'ample sigui igual a l'alçada */
-  aspect-ratio: 1; /* Manté una proporció d'aspecte de 1:1 perquè sigui quadrat */
+  width: 100%;
+  aspect-ratio: 1;
 }
 
 .like-button:hover {
   background-color: rgba(0, 0, 0, 0.144);
   transform: scale(1.1);
 }
+
 .like-button svg {
-  font-size: 24px; /* Augmenta la mida de la icona */
+  font-size: 24px;
+}
+
+/* Ajustos per a dispositius mòbils */
+@media (max-width: 768px) {
+  .info-text {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .start-button {
+    bottom: 15%;
+    font-size: 18px;
+    padding: 8px 16px;
+  }
+
+  .loading-bar {
+    width: 70%;
+    bottom: 10%;
+  }
+
+  .tour-text {
+    bottom: 10%;
+    font-size: 12px;
+  }
+
+  .user-interface {
+    top: 10px; /* Moure a la part superior */
+    right: 10px; /* Posició a la dreta */
+    bottom: auto; /* Desactiva el bottom */
+    grid-template-columns: auto auto;
+  }
+
+  .like-button {
+    width: auto;
+    padding: 8px;
+  }
 }

@@ -30,8 +30,10 @@ const Scene = ({ moveCamera, onLoadingProgress, allowInteraction }) => {
     const aspect = window.innerWidth / window.innerHeight;
     const d = 7.5;
 
-    const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
-    camera.position.set(5, 2, 5);
+    const camera = new THREE.OrthographicCamera(  -d * aspect, d * aspect, d, -d, 0.1, 3000 // Redueix el 'near' i augmenta el 'far'
+    );
+    
+    camera.position.set(3, 2, 3);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     cameraRef.current = camera; 
 
@@ -175,7 +177,10 @@ const Scene = ({ moveCamera, onLoadingProgress, allowInteraction }) => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-    controls.screenSpacePanning = false;
+    controls.screenSpacePanning = false; // Desactiva el pan amb el botó dret del ratolí
+    controls.enablePan = false; // Desactiva el moviment de pan (desplaçament)
+    controls.enableZoom = true; // Permet el zoom
+    controls.enableRotate = true; // Permet la rotació
     controls.update();
 
     const raycaster = new THREE.Raycaster();
@@ -619,6 +624,20 @@ const Scene = ({ moveCamera, onLoadingProgress, allowInteraction }) => {
       renderer.render(scene, camera);
     }
 
+    const animateRotation = () => {
+      // Defineix els angles en radians
+      const minRotation = THREE.MathUtils.degToRad(-20); // -20 graus en radians
+      const maxRotation = THREE.MathUtils.degToRad(20); // 20 graus en radians
+    
+      // Animació cíclica amb GSAP
+      gsap.to(scene.rotation, {
+        y: maxRotation, // Rota fins a 20 graus
+        duration: 15, // Augmenta la durada per fer-ho més lent
+        ease: "power1.inOut",
+        yoyo: true, // Torna enrere després de completar
+        repeat: -1, // Repetir infinitament
+      });
+    };
     window.addEventListener('resize', function () {
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -632,6 +651,8 @@ const Scene = ({ moveCamera, onLoadingProgress, allowInteraction }) => {
 
     init();
     animate();
+    animateRotation();
+
 
     return () => {
       currentMount.removeChild(renderer.domElement);
